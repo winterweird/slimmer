@@ -17,7 +17,7 @@ $ ./slimmer 5 30 path/to/your/code
 
 The first argument `n` is the number of lines a block of code must have to be considered. This is to increase efficiency and reduce the number of false positives - after all, in a Slim template, there will be a lot of lines that are similar, because single lines can consist of simply a HTML tag, and there are only so many of those.
 
-The second argument `m` is the maximum Levenshtein distance between code blocks for them to be considered "similar enough" to be included. This is also to reduce false positives, since if you set this value high enough, _any_ block of code will be "similar" to any _other_ block of code, and that's not helpful. It also increases efficiency, since a cutoff point means we don't need to keep considering lines.
+The second argument `m` is the maximum [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) between code blocks for them to be considered "similar enough" to be included. This is also to reduce false positives, since if you set this value high enough, _any_ block of code will be "similar" to any _other_ block of code, and that's not helpful. It also increases efficiency, since a cutoff point means we don't need to keep considering lines.
 
 All further arguments are file or folder names. If a folder name is supplied, all files found recursively below that folder will be processed. If a filename is supplied, it's processed like a regular file.
 
@@ -27,11 +27,17 @@ When processing a file, Slimmer will for each line attempt to find the largest c
 
 The lines displayed in the output are not necessarily consecutive lines. This is because blank lines are filtered out and not considered. Furthermore, indentation level is not considered when comparing similarity, because two code blocks may well be indented differently due to an if-statement somewhere but still be prime candidates for refactoring.
 
-The whitespace removal is delegated to a shell script because that was the first solution I came up with. It's probably not too inefficient given that the bulk of the rest of the code is written in Ruby, although I kinda do re-implement it partially in Ruby for output formatting reasons. The code for finding the Levenshtein distance is
+The whitespace removal is delegated to a shell script because that was the first solution I came up with. It's probably not too inefficient given that the bulk of the rest of the code is written in Ruby, although I kinda do re-implement it partially in Ruby for output formatting reasons. The code for finding the Levenshtein distance is delegated to a C++ program for efficiency reasons.
 
 ### Why the Levenshtein distance?
 
 First thing I thought of :) It's possible that some more clever word-edit or token-edit distance would perform much better, but I couldn't be arsed. Levenshtein is technically straightforward and unambiguous.
+
+## Future work
+
+I'd like to be able to cross reference files with other files without having the efficiency go to ten million pieces of shit, but idk if that's ever going to happen. Comparing a file to itself if slow enough - but comparing every file to, say, 20 other files would be a nightmare. And that's not factoring in how long it would take me to figure out how to support both self-comparison and cross-comparison simultaneously. That said, cross-referencing would be key to catching a very particular kind of copypasteitis, so maybe it'd be worth it.
+
+Insert some vague crap about making it more efficient and all that jazz.
 
 # DISCLAIMER
 
