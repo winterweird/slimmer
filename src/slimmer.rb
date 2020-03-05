@@ -4,13 +4,21 @@ require "shellwords"
 
 min_window_size, max_levenshtein_dist = ARGV.take(2).map(&:to_i)
 
+def cmd(cmdname)
+  return "./#{ cmdname }" if !`command -v ./#{ cmdname }`.empty?
+  cmdname
+end
+
+@levenshtein = cmd("levenshtein")
+@unwhitespace = cmd("unwhitespace")
+
 def get_window_lev(window, other, line_a:, line_b:, maxdist:)
   w1 = window.join("\n")
   ret = []
   (0..other.length).each do |offset|
     other_slice = other.drop(offset).take(window.length)
     w2 = other_slice.join("\n")
-    res = `./levenshtein #{ Shellwords.escape(w1) } #{ Shellwords.escape(w2) }`.strip.to_i
+    res = `#{@levenshtein} #{ Shellwords.escape(w1) } #{ Shellwords.escape(w2) }`.strip.to_i
     if res <= maxdist
       ret << [[line_a, window.length], [line_b+offset, other_slice.length], res ]
     end
@@ -23,7 +31,7 @@ end
 def check_file_refactorability(filename, minws, maxdist)
   puts "CHECKING FILE: #{ filename }", ""
   raw_lines = File.readlines(filename).map { |line| line.rstrip }.each_with_index.to_a.reject { |line, i| line.empty? }
-  lines = `cat #{ Shellwords.escape(filename) } | ./unwhitespace`.split("\n")
+  lines = `cat #{ Shellwords.escape(filename) } | #{ @unwhitespace }`.split("\n")
 
   skipuntil = -1
   (0..lines.length-1).each do |i|
