@@ -45,8 +45,8 @@ def check_file_refactorability(filename, minws, maxdist)
       if res.empty?
         if !prev_result.empty?
           top, btm, lev_dist = prev_result.sort_by { |_, _, lev| lev }.first
-          top_block = raw_lines.drop(top.first).take(top.last).map { |w,idx| sprintf("%3d #{w}", idx+1) }.join("\n")
-          btm_block = raw_lines.drop(btm.first).take(btm.last).map { |w,idx| sprintf("%3d #{w}", idx+1) }.join("\n")
+          top_block = raw_lines.drop(top.first).take(top.last).map { |w,idx| sprintf("%3d #{w.gsub("%", "%%")}", idx+1) }.join("\n")
+          btm_block = raw_lines.drop(btm.first).take(btm.last).map { |w,idx| sprintf("%3d #{w.gsub("%", "%%")}", idx+1) }.join("\n")
 
           output = <<-END.chomp("\n")
 #{ top_block }
